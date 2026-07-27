@@ -9,6 +9,12 @@ export function Home() {
         <li>
           <a href="#/check">M0: Firebase 疎通確認(開発用)</a>
         </li>
+        <li>
+          <a href="#/host-demo">M2デモ: 先生用ホスト画面</a>
+        </li>
+        <li>
+          <a href="#/play-demo">M2デモ: 生徒用参加画面</a>
+        </li>
       </ul>
     </div>
   );

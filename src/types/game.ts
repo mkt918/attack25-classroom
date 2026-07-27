@@ -128,6 +128,11 @@ export interface JudgeLogEntry {
   at: number;
 }
 
+export interface PanelPick {
+  uid: string;
+  panelIndex: number;
+}
+
 export interface RoomState {
   meta: GameMeta;
   players: Record<string, Player>;
@@ -135,5 +140,6 @@ export interface RoomState {
   question: PublicQuestion | null;
   buzz: BuzzState;
   answer: AnswerState | null;
+  panelPick: PanelPick | null;
   ruleConfig: RuleConfig;
 }
