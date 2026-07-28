@@ -3,9 +3,15 @@ import { ensureSignedIn } from "../../firebase/auth";
 import * as actions from "../../firebase/roomActions";
 import { useRoomState } from "../../hooks/useRoomState";
 import { usePresence } from "../../hooks/usePresence";
+import { useTypewriter } from "../../hooks/useTypewriter";
 import { BoardView } from "../../components/BoardView";
 import { ResultBoard } from "../../components/ResultBoard";
-import { canClaimPanel } from "../../engine";
+import {
+  canClaimPanel,
+  getSelectablePanelIndices,
+  getErasablePanelIndices,
+  isAttackChanceQuestion,
+} from "../../engine";
 
 interface StudentPlayProps {
   sessionId: string;
@@ -16,6 +22,10 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
   const [uid, setUid] = useState<string | null>(null);
   const room = useRoomState(sessionId, roomId);
   usePresence(sessionId, roomId, uid);
+  const revealedQuestionText = useTypewriter(
+    room?.question?.text ?? "",
+    room?.ruleConfig.charRevealMs ?? 0
+  );
 
   useEffect(() => {
     ensureSignedIn().then((user) => setUid(user.uid));
@@ -51,6 +61,22 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
   const phase = room.meta.phase;
   const isMyTurn = room.buzz.first?.uid === uid;
   const activePlayerName = room.players[room.buzz.first?.uid ?? ""]?.name ?? "誰か";
+  const isResting = (me.restQuestionsLeft ?? 0) > 0;
+  const attackChance = isAttackChanceQuestion(
+    room.meta.questionIndex,
+    room.meta.totalQuestionCount,
+    room.ruleConfig.finalAttackQuestions
+  );
+  const selectablePanelIndices =
+    isMyTurn && phase === "panel_select"
+      ? new Set(
+          attackChance
+            ? getErasablePanelIndices(room.board)
+            : room.ruleConfig.flipMode === "othello"
+              ? getSelectablePanelIndices(room.board, uid)
+              : room.board.map((_, i) => i).filter((i) => canClaimPanel(room.board, i))
+        )
+      : undefined;
 
   return (
     <div className="page">
@@ -78,15 +104,26 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
 
       {(phase === "q_reading" || phase === "buzz_open") && room.question && (
         <div className="card stack" style={{ textAlign: "center" }}>
-          <h2>{room.question.text}</h2>
+          <h2 style={{ minHeight: "2.6em" }}>
+            {revealedQuestionText}
+            {revealedQuestionText.length < room.question.text.length && (
+              <span className="typewriter-caret">|</span>
+            )}
+          </h2>
           {phase === "buzz_open" ? (
-            <button
-              onClick={() => actions.tryBuzzIn(sessionId, roomId, uid)}
-              className="btn-primary btn-large"
-              style={{ fontSize: 28, padding: "28px" }}
-            >
-              🔔 早押し!
-            </button>
+            isResting ? (
+              <p className="error-text" style={{ margin: 0 }}>
+                😴 お休み中(あと{me.restQuestionsLeft}問)。次の問題までお待ちください。
+              </p>
+            ) : (
+              <button
+                onClick={() => actions.tryBuzzIn(sessionId, roomId, uid)}
+                className="btn-primary btn-large"
+                style={{ fontSize: 28, padding: "28px" }}
+              >
+                🔔 早押し!
+              </button>
+            )
           ) : (
             <p className="muted" style={{ margin: 0 }}>まもなく早押しが始まります...</p>
           )}
@@ -118,15 +155,16 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
         <div className="card" style={{ textAlign: "center" }}>
           {isMyTurn ? (
             <>
-              <h2>🎉 正解!パネルを選んでください</h2>
+              <h2>
+                {attackChance ? "🎯 正解!アタックチャンス、消すパネルを選んでください" : "🎉 正解!パネルを選んでください"}
+              </h2>
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <BoardView
                   board={room.board}
                   players={room.players}
-                  selectableIndices={
-                    new Set(room.board.map((_, i) => i).filter((i) => canClaimPanel(room.board, i)))
-                  }
+                  selectableIndices={selectablePanelIndices}
                   onSelect={(index) => actions.submitPanelPick(sessionId, roomId, uid, index)}
+                  size="lg"
                 />
               </div>
             </>

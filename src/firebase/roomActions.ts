@@ -32,7 +32,13 @@ export async function initRoom(
   hostUid: string,
   config: RuleConfig
 ): Promise<void> {
-  const meta: GameMeta = { phase: "lobby", questionIndex: -1, phaseDeadline: null, hostUid };
+  const meta: GameMeta = {
+    phase: "lobby",
+    questionIndex: -1,
+    phaseDeadline: null,
+    hostUid,
+    totalQuestionCount: 0,
+  };
   await set(ref(getDb(), roomPath(sessionId, roomId)), {
     meta,
     players: {},
@@ -77,6 +83,7 @@ export async function joinRoom(
     connected: true,
     correctCount: 0,
     attackStock: 0,
+    restQuestionsLeft: 0,
   };
   await set(ref(getDb(), playerPath(sessionId, roomId, uid)), player);
 }
@@ -96,6 +103,14 @@ export async function setQuestionIndex(
   questionIndex: number
 ): Promise<void> {
   await update(ref(getDb(), roomMetaPath(sessionId, roomId)), { questionIndex });
+}
+
+export async function setTotalQuestionCount(
+  sessionId: string,
+  roomId: string,
+  totalQuestionCount: number
+): Promise<void> {
+  await update(ref(getDb(), roomMetaPath(sessionId, roomId)), { totalQuestionCount });
 }
 
 export async function publishQuestion(

@@ -5,7 +5,15 @@ import { roomAnswerPath, roomBuzzFirstPath, roomPanelPickPath } from "../firebas
 import { waitForValue, sleep } from "../firebase/listen";
 import { RoomController } from "../firebase/gameController";
 import * as actions from "../firebase/roomActions";
-import { resolveFlip, applyCorrectAnswer, canClaimPanel, checkImmediateVictory } from "../engine";
+import {
+  resolveFlip,
+  applyCorrectAnswer,
+  canClaimPanel,
+  checkImmediateVictory,
+  getSelectablePanelIndices,
+  getErasablePanelIndices,
+  isAttackChanceQuestion,
+} from "../engine";
 import {
   createEmptyBoard,
   toPublicQuestion,
@@ -48,13 +56,19 @@ export function useHostGameLoop(
     async (
       question: Question,
       qIndex: number,
+      totalQuestionCount: number,
       board: Board,
       players: Record<string, Player>,
-      allUids: string[]
+      eligibleUids: string[]
     ): Promise<{ outcome: QuestionOutcome; board: Board }> => {
       const db = getDb();
       const remainingUids = new Set(
-        allUids.filter((uid) => players[uid]?.connected !== false)
+        eligibleUids.filter((uid) => players[uid]?.connected !== false)
+      );
+      const attackChance = isAttackChanceQuestion(
+        qIndex,
+        totalQuestionCount,
+        config.finalAttackQuestions
       );
 
       while (remainingUids.size > 0) {
@@ -104,7 +118,18 @@ export function useHostGameLoop(
         if (!isCorrect) {
           answerWaiter.cancel();
           remainingUids.delete(buzzUid);
-          appendLog(`${players[buzzUid]?.name ?? buzzUid} 不正解/時間切れ`);
+          if (config.wrongRestQuestions > 0) {
+            players[buzzUid] = {
+              ...players[buzzUid],
+              restQuestionsLeft: config.wrongRestQuestions,
+            };
+            await actions.updatePlayer(sessionId, roomId, buzzUid, {
+              restQuestionsLeft: players[buzzUid].restQuestionsLeft,
+            });
+          }
+          appendLog(
+            `${players[buzzUid]?.name ?? buzzUid} 不正解/時間切れ(${config.wrongRestQuestions}問休み)`
+          );
           await actions.appendJudgeLog(sessionId, roomId, "wrong_or_timeout", {
             uid: buzzUid,
             qIndex,
@@ -115,14 +140,25 @@ export function useHostGameLoop(
         players[buzzUid] = applyCorrectAnswer(players[buzzUid], config);
         await actions.updatePlayer(sessionId, roomId, buzzUid, players[buzzUid]);
         await actions.appendJudgeLog(sessionId, roomId, "correct", { uid: buzzUid, qIndex });
-        appendLog(`${players[buzzUid]?.name ?? buzzUid} 正解!パネルを選択中...`);
+        appendLog(
+          attackChance
+            ? `${players[buzzUid]?.name ?? buzzUid} 正解!アタックチャンス、消すパネルを選択中...`
+            : `${players[buzzUid]?.name ?? buzzUid} 正解!パネルを選択中...`
+        );
 
         await actions.setPhase(sessionId, roomId, "panel_select");
         const panelRef = ref(db, roomPanelPickPath(sessionId, roomId));
         const currentBoard = board;
+        const validIndices = new Set(
+          attackChance
+            ? getErasablePanelIndices(currentBoard)
+            : config.flipMode === "othello"
+              ? getSelectablePanelIndices(currentBoard, buzzUid)
+              : currentBoard.map((_, i) => i).filter((i) => canClaimPanel(currentBoard, i))
+        );
         const pickWaiter = waitForValue<PanelPick>(
           panelRef,
-          (v) => v !== null && v.uid === buzzUid && canClaimPanel(currentBoard, v.panelIndex)
+          (v) => v !== null && v.uid === buzzUid && validIndices.has(v.panelIndex)
         );
         const pickRaced = await controller.race(pickWaiter.promise);
         if (pickRaced.skipped) {
@@ -131,14 +167,26 @@ export function useHostGameLoop(
         }
         const pick = pickRaced.value;
 
-        const newBoard = resolveFlip(board, pick.panelIndex, buzzUid, config);
-        await actions.setBoard(sessionId, roomId, newBoard);
-        await actions.appendJudgeLog(sessionId, roomId, "panel_flip", {
-          uid: buzzUid,
-          index: pick.panelIndex,
-        });
+        let newBoard: Board;
+        if (attackChance) {
+          newBoard = [...board];
+          newBoard[pick.panelIndex] = null;
+          await actions.setBoard(sessionId, roomId, newBoard);
+          await actions.appendJudgeLog(sessionId, roomId, "attack_chance_erase", {
+            uid: buzzUid,
+            index: pick.panelIndex,
+          });
+          appendLog(`パネル${pick.panelIndex + 1}を消去`);
+        } else {
+          newBoard = resolveFlip(board, pick.panelIndex, buzzUid, config);
+          await actions.setBoard(sessionId, roomId, newBoard);
+          await actions.appendJudgeLog(sessionId, roomId, "panel_flip", {
+            uid: buzzUid,
+            index: pick.panelIndex,
+          });
+          appendLog(`パネル${pick.panelIndex + 1}を確保`);
+        }
         await actions.clearPanelPick(sessionId, roomId);
-        appendLog(`パネル${pick.panelIndex + 1}を確保`);
 
         return { outcome: "solved", board: newBoard };
       }
@@ -161,11 +209,25 @@ export function useHostGameLoop(
       typeof config.totalCount === "number"
         ? Math.min(config.totalCount, questionSet.questions.length)
         : questionSet.questions.length;
+    await actions.setTotalQuestionCount(sessionId, roomId, questionCount);
 
     try {
       for (let qIndex = 0; qIndex < questionCount; qIndex++) {
         await controller.waitIfPaused();
         if (controller.isStopped) break;
+
+        const eligibleUids: string[] = [];
+        for (const uid of allUids) {
+          const player = players[uid];
+          if (player.restQuestionsLeft > 0) {
+            players[uid] = { ...player, restQuestionsLeft: player.restQuestionsLeft - 1 };
+            await actions.updatePlayer(sessionId, roomId, uid, {
+              restQuestionsLeft: players[uid].restQuestionsLeft,
+            });
+          } else {
+            eligibleUids.push(uid);
+          }
+        }
 
         const question = questionSet.questions[qIndex];
         await actions.setQuestionIndex(sessionId, roomId, qIndex);
@@ -174,7 +236,14 @@ export function useHostGameLoop(
         appendLog(`第${qIndex + 1}問: ${question.text}`);
         await sleep(Q_READING_MS);
 
-        const result = await runOneQuestion(question, qIndex, board, players, allUids);
+        const result = await runOneQuestion(
+          question,
+          qIndex,
+          questionCount,
+          board,
+          players,
+          eligibleUids
+        );
         board = result.board;
 
         if (result.outcome === "stopped") break;

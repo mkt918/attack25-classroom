@@ -14,16 +14,33 @@ interface BoardViewProps {
   players: Record<string, Player>;
   selectableIndices?: Set<number>;
   onSelect?: (index: number) => void;
+  /** "lg" は生徒がパネルを選ぶ場面向けに、より大きく・タップしやすく表示する */
+  size?: "md" | "lg";
 }
 
-export function BoardView({ board, players, selectableIndices, onSelect }: BoardViewProps) {
+const SIZE_STYLE = {
+  md: { maxWidth: "min(90vw, 420px)", gap: 6, fontSize: 15 },
+  lg: { maxWidth: "min(96vw, 620px)", gap: 10, fontSize: 24 },
+};
+
+export function BoardView({
+  board,
+  players,
+  selectableIndices,
+  onSelect,
+  size = "md",
+}: BoardViewProps) {
+  const { maxWidth, gap, fontSize } = SIZE_STYLE[size];
+
   return (
     <div
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(5, 1fr)",
-        gap: 6,
-        maxWidth: 360,
+        gap,
+        maxWidth,
+        width: "100%",
+        margin: "0 auto",
       }}
     >
       {board.map((owner, index) => {
@@ -42,8 +59,8 @@ export function BoardView({ board, players, selectableIndices, onSelect }: Board
               background: bg,
               color: player ? "#fff" : "var(--text-muted)",
               border: selectable ? "2px solid var(--accent)" : "1px solid var(--border)",
-              borderRadius: 6,
-              fontSize: 14,
+              borderRadius: size === "lg" ? 10 : 6,
+              fontSize,
               fontWeight: 700,
               cursor: selectable ? "pointer" : "default",
               opacity: !owner && !selectable ? 0.6 : 1,

@@ -230,3 +230,19 @@ select:focus-visible {
 .muted {
   color: var(--text-muted);
 }
+
+.typewriter-caret {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--accent);
+  animation: caret-blink 0.8s step-end infinite;
+}
+
+@keyframes caret-blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}

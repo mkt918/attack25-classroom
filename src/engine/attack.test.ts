@@ -17,6 +17,7 @@ function makePlayer(overrides: Partial<Player> = {}): Player {
     connected: true,
     correctCount: 0,
     attackStock: 0,
+    restQuestionsLeft: 0,
     ...overrides,
   };
 }
