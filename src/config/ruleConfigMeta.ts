@@ -97,6 +97,14 @@ export const RULE_CONFIG_FIELDS: RuleFieldMeta[] = [
     visible: (c) => c.flipMode === "othello",
   },
   {
+    key: "randomizeQuestions",
+    kind: "toggle",
+    label: "出題順をランダムにする",
+    description: "オンなら問題集の並び順に関係なくランダムな順番で出題する。オフなら登録順(上から順)に出題する。",
+    get: (c) => c.randomizeQuestions,
+    set: (c, v) => ({ ...c, randomizeQuestions: v }),
+  },
+  {
     key: "charRevealMs",
     kind: "slider",
     label: "問題文の表示速度",

@@ -43,6 +43,8 @@ export interface RuleConfig {
   finalAttackQuestions: number;
   /** 問題文を1文字表示するのにかける時間(ms)。0なら即座に全文表示。 */
   charRevealMs: number;
+  /** 出題順をランダムにするか(オフなら問題集に登録した順で出題) */
+  randomizeQuestions: boolean;
 }
 
 export const DEFAULT_RULE_CONFIG: RuleConfig = {
@@ -58,6 +60,7 @@ export const DEFAULT_RULE_CONFIG: RuleConfig = {
   wrongRestQuestions: 2,
   finalAttackQuestions: 5,
   charRevealMs: 80,
+  randomizeQuestions: true,
 };
 
 /** プレイヤー識別色 */

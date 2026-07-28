@@ -3,3 +3,4 @@ export * from "./flip";
 export * from "./attack";
 export * from "./scoring";
 export * from "./placement";
+export * from "./shuffle";

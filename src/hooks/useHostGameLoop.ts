@@ -13,6 +13,7 @@ import {
   getSelectablePanelIndices,
   getErasablePanelIndices,
   isAttackChanceQuestion,
+  shuffle,
 } from "../engine";
 import {
   createEmptyBoard,
@@ -204,17 +205,29 @@ export function useHostGameLoop(
 
     let board: Board = createEmptyBoard();
     const players: Record<string, Player> = await actions.getPlayers(sessionId, roomId);
-    const allUids = Object.keys(players);
+    let allUids = Object.keys(players);
+    const orderedQuestions = config.randomizeQuestions
+      ? shuffle(questionSet.questions)
+      : questionSet.questions;
     const questionCount =
       typeof config.totalCount === "number"
-        ? Math.min(config.totalCount, questionSet.questions.length)
-        : questionSet.questions.length;
+        ? Math.min(config.totalCount, orderedQuestions.length)
+        : orderedQuestions.length;
     await actions.setTotalQuestionCount(sessionId, roomId, questionCount);
 
     try {
       for (let qIndex = 0; qIndex < questionCount; qIndex++) {
         await controller.waitIfPaused();
         if (controller.isStopped) break;
+
+        // 進行中に新しく参加した生徒も、以後の問題から早押しに加われるようにする
+        const currentPlayers = await actions.getPlayers(sessionId, roomId);
+        for (const uid of Object.keys(currentPlayers)) {
+          if (!players[uid]) {
+            players[uid] = currentPlayers[uid];
+            allUids.push(uid);
+          }
+        }
 
         const eligibleUids: string[] = [];
         for (const uid of allUids) {
@@ -229,7 +242,7 @@ export function useHostGameLoop(
           }
         }
 
-        const question = questionSet.questions[qIndex];
+        const question = orderedQuestions[qIndex];
         await actions.setQuestionIndex(sessionId, roomId, qIndex);
         await actions.publishQuestion(sessionId, roomId, toPublicQuestion(question));
         await actions.setPhase(sessionId, roomId, "q_reading");
