@@ -5,6 +5,13 @@
 
 export const sessionPath = (sessionId: string) => `sessions/${sessionId}`;
 
+/**
+ * 「今アクティブな授業セッション」を指すポインタ。
+ * 生徒は部屋コードだけ知っていればよく、どのセッションに属すかは
+ * ここを見て解決する(1つのFirebaseプロジェクト=1クラスの前提)。
+ */
+export const activeSessionPath = () => "activeSession";
+
 export const roomPath = (sessionId: string, roomId: string) =>
   `${sessionPath(sessionId)}/rooms/${roomId}`;
 

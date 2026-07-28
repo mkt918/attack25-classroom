@@ -1,0 +1,80 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "activeSession": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+
+    "_connectivityCheck": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "sessions": {
+      "$sessionId": {
+        "rooms": {
+          "$roomId": {
+            ".read": "auth != null",
+
+            "meta": {
+              ".write": "auth != null && (!data.exists() || auth.uid === data.child('hostUid').val())"
+            },
+
+            "ruleConfig": {
+              ".write": "auth != null && (!data.parent().child('meta').exists() || auth.uid === data.parent().child('meta/hostUid').val())"
+            },
+
+            "board": {
+              ".write": "auth != null && auth.uid === data.parent().child('meta/hostUid').val()"
+            },
+
+            "question": {
+              ".write": "auth != null && auth.uid === data.parent().child('meta/hostUid').val()"
+            },
+
+            "judgeLog": {
+              ".write": "auth != null && auth.uid === data.parent().child('meta/hostUid').val()"
+            },
+
+            "players": {
+              "$uid": {
+                ".write": "auth != null && (auth.uid === $uid || auth.uid === data.parent().parent().child('meta/hostUid').val())"
+              }
+            },
+
+            "buzz": {
+              "open": {
+                ".write": "auth != null && auth.uid === data.parent().parent().child('meta/hostUid').val()"
+              },
+              "first": {
+                ".write": "auth != null && data.parent().parent().child('players').child(auth.uid).exists()",
+                ".validate": "newData.child('uid').val() === auth.uid"
+              }
+            },
+
+            "answer": {
+              ".write": "auth != null",
+              ".validate": "!newData.exists() || newData.child('uid').val() === auth.uid || auth.uid === data.parent().child('meta/hostUid').val()"
+            },
+
+            "panelPick": {
+              ".write": "auth != null",
+              ".validate": "!newData.exists() || newData.child('uid').val() === auth.uid || auth.uid === data.parent().child('meta/hostUid').val()"
+            },
+
+            "presence": {
+              "$uid": {
+                ".write": "auth != null && auth.uid === $uid"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
