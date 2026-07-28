@@ -13,8 +13,8 @@ export async function getActiveSession(): Promise<string | null> {
   return snap.val();
 }
 
-// 紛らわしい文字(0/O, 1/I)を除いた部屋コード用文字集合
-const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+// 部屋コード用文字集合(数字4桁)
+const CODE_CHARS = "0123456789";
 
 function generateRoomCode(length = 4): string {
   let code = "";

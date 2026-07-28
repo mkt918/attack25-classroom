@@ -15,18 +15,23 @@ export function ResultBoard({ board, players }: ResultBoardProps) {
   return (
     <div>
       <h2>結果発表</h2>
-      <ol style={{ listStyle: "none", padding: 0 }}>
+      <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
         {standings.map((s) => (
           <li
             key={s.uid}
+            className="card"
             style={{
-              fontSize: s.rank === 1 ? 32 : 22,
-              fontWeight: s.rank === 1 ? "bold" : "normal",
-              margin: "8px 0",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: s.rank === 1 ? "20px 24px" : "12px 20px",
+              border: s.rank === 1 ? "2px solid var(--accent)" : undefined,
             }}
           >
-            {s.rank <= 3 ? MEDAL[s.rank - 1] : `${s.rank}位`} {players[s.uid]?.name ?? s.uid} —{" "}
-            {s.count}枚
+            <span style={{ fontSize: s.rank === 1 ? 28 : 18, fontWeight: s.rank === 1 ? 800 : 600 }}>
+              {s.rank <= 3 ? MEDAL[s.rank - 1] : `${s.rank}位`} {players[s.uid]?.name ?? s.uid}
+            </span>
+            <span className="badge">{s.count}枚</span>
           </li>
         ))}
       </ol>

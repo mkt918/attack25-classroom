@@ -60,64 +60,73 @@ export function Dashboard() {
   }
 
   return (
-    <div style={{ maxWidth: 960, margin: "0 auto", padding: 24, textAlign: "left" }}>
+    <div className="page page-wide">
       <h1>先生用ダッシュボード</h1>
 
-      <section style={{ marginBottom: 32 }}>
-        <h2>1. 問題を用意する</h2>
-        <QuestionSetEditor value={questionSet} onChange={setQuestionSet} />
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button onClick={handleSaveQuestionSet}>この問題集を保存</button>
-          <button onClick={() => setQuestionSet(createEmptyQuestionSet())}>新規作成</button>
-          {listQuestionSets().map((s) => (
-            <button key={s.id} onClick={() => setQuestionSet(s)}>
-              読込: {s.title}
-            </button>
-          ))}
-        </div>
-      </section>
+      <div className="stack">
+        <section className="card">
+          <h2>1. 問題を用意する</h2>
+          <QuestionSetEditor value={questionSet} onChange={setQuestionSet} />
+          <div className="btn-row" style={{ marginTop: 12 }}>
+            <button className="btn-primary" onClick={handleSaveQuestionSet}>この問題集を保存</button>
+            <button onClick={() => setQuestionSet(createEmptyQuestionSet())}>新規作成</button>
+            {listQuestionSets().map((s) => (
+              <button key={s.id} onClick={() => setQuestionSet(s)}>
+                読込: {s.title}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <section style={{ marginBottom: 32 }}>
-        <h2>2. ルールを決める</h2>
-        <RuleConfigEditor value={ruleConfig} onChange={setRuleConfig} />
-      </section>
+        <section className="card">
+          <h2>2. ルールを決める</h2>
+          <RuleConfigEditor value={ruleConfig} onChange={setRuleConfig} />
+        </section>
 
-      <section style={{ marginBottom: 32 }}>
-        <h2>3. 部屋(班)を作る</h2>
-        <p>
-          セッションID: <code>{sessionId}</code>{" "}
-          <button onClick={handleNewSession}>新しいセッションを始める</button>
-        </p>
-        <label>
-          班の数:{" "}
-          <input
-            type="number"
-            min={1}
-            max={30}
-            value={roomCount}
-            onChange={(e) => setRoomCount(Number(e.target.value))}
-            style={{ width: 60 }}
-          />
-        </label>{" "}
-        <button onClick={handleCreateRooms} disabled={!hostUid || creating}>
-          部屋を一括作成
-        </button>
-      </section>
+        <section className="card">
+          <h2>3. 部屋(班)を作る</h2>
+          <p>
+            セッションID: <code>{sessionId}</code>
+          </p>
+          <div className="btn-row" style={{ alignItems: "center", marginBottom: 12 }}>
+            <button onClick={handleNewSession}>新しいセッションを始める</button>
+          </div>
+          <label className="field-label" style={{ maxWidth: 160 }}>
+            班の数
+            <input
+              type="number"
+              min={1}
+              max={30}
+              value={roomCount}
+              onChange={(e) => setRoomCount(Number(e.target.value))}
+            />
+          </label>
+          <button className="btn-primary" onClick={handleCreateRooms} disabled={!hostUid || creating}>
+            部屋を一括作成
+          </button>
+        </section>
 
-      <section>
-        <h2>4. 進行状況({roomIds.length}部屋)</h2>
-        {roomIds.length === 0 && <p>まだ部屋がありません。上で「部屋を一括作成」してください。</p>}
-        {roomIds.map((roomId) => (
-          <RoomMonitor
-            key={roomId}
-            sessionId={sessionId}
-            roomId={roomId}
-            questionSet={questionSet}
-            config={ruleConfig}
-            room={rooms[roomId]}
-          />
-        ))}
-      </section>
+        <section>
+          <h2>4. 進行状況({roomIds.length}部屋)</h2>
+          {roomIds.length === 0 && (
+            <div className="card">
+              <p className="muted" style={{ margin: 0 }}>まだ部屋がありません。上で「部屋を一括作成」してください。</p>
+            </div>
+          )}
+          <div className="stack">
+            {roomIds.map((roomId) => (
+              <RoomMonitor
+                key={roomId}
+                sessionId={sessionId}
+                roomId={roomId}
+                questionSet={questionSet}
+                config={ruleConfig}
+                room={rooms[roomId]}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

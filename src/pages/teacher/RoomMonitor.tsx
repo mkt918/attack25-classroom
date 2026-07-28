@@ -34,20 +34,18 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
   const phase = room?.meta.phase ?? "lobby";
 
   return (
-    <div
-      style={{
-        border: "1px solid var(--border, #ccc)",
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 12,
-      }}
-    >
-      <h3>
-        部屋 {roomId}({playerList.length}人) — {PHASE_LABEL[phase] ?? phase}
-      </h3>
+    <div className="card">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <h3 style={{ margin: 0 }}>
+          部屋 {roomId} <span className="muted">({playerList.length}人)</span>
+        </h3>
+        <span className={`badge ${phase === "result" ? "badge-success" : phase === "lobby" ? "badge-muted" : ""}`}>
+          {PHASE_LABEL[phase] ?? phase}
+        </span>
+      </div>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-        <button onClick={startGame} disabled={isRunning || playerList.length === 0}>
+      <div className="btn-row" style={{ margin: "12px 0" }}>
+        <button className="btn-primary" onClick={startGame} disabled={isRunning || playerList.length === 0}>
           開始
         </button>
         {isRunning && !isPaused && <button onClick={pause}>一時停止</button>}
@@ -57,7 +55,7 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
       </div>
 
       {playerList.length > 0 && (
-        <p style={{ fontSize: 13 }}>
+        <p className="muted" style={{ fontSize: 13 }}>
           参加者: {playerList.map((p) => `${p.name}(${p.correctCount}問)`).join(" / ")}
         </p>
       )}
@@ -65,12 +63,16 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
       {room && (
         <>
           <BoardView board={room.board} players={room.players} />
-          {phase === "result" && <ResultBoard board={room.board} players={room.players} />}
+          {phase === "result" && (
+            <div style={{ marginTop: 12 }}>
+              <ResultBoard board={room.board} players={room.players} />
+            </div>
+          )}
         </>
       )}
 
-      <details style={{ marginTop: 8 }}>
-        <summary>ログ</summary>
+      <details style={{ marginTop: 12 }}>
+        <summary className="muted" style={{ cursor: "pointer" }}>ログ</summary>
         <pre
           style={{
             fontSize: 11,
@@ -78,7 +80,9 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
             overflowY: "auto",
             background: "#111",
             color: "#0f0",
-            padding: 6,
+            padding: 8,
+            borderRadius: 6,
+            marginTop: 8,
           }}
         >
           {log.join("\n")}

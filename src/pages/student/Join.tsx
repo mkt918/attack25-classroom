@@ -28,7 +28,7 @@ export function Join() {
         setError("授業セッションが見つかりません。先生に開始してもらってください。");
         return;
       }
-      const roomCode = code.trim().toUpperCase();
+      const roomCode = code.trim();
       const roomSnap = await get(ref(getDb(), roomPath(sessionId, roomCode)));
       if (!roomSnap.exists()) {
         setError("その部屋コードは見つかりませんでした。もう一度確認してください。");
@@ -41,36 +41,44 @@ export function Join() {
     }
   }
 
+  const canSubmit = !!name.trim() && code.trim().length === 4 && !busy && !!uid;
+
   return (
-    <div style={{ maxWidth: 400, margin: "0 auto", padding: 24, textAlign: "left" }}>
+    <div className="page" style={{ maxWidth: 420 }}>
       <h1>参加する</h1>
-      <label style={{ display: "block", marginBottom: 12 }}>
-        なまえ
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ fontSize: 18, padding: 8, width: "100%", boxSizing: "border-box" }}
-        />
-      </label>
-      <label style={{ display: "block", marginBottom: 12 }}>
-        部屋コード
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          style={{
-            fontSize: 24,
-            padding: 8,
-            width: "100%",
-            boxSizing: "border-box",
-            textTransform: "uppercase",
-          }}
-          placeholder="例: AB3D"
-        />
-      </label>
-      <button onClick={handleJoin} disabled={!name.trim() || !code.trim() || busy}>
-        {busy ? "参加中..." : "参加する"}
-      </button>
-      {error && <p style={{ color: "#d9291c" }}>{error}</p>}
+      <div className="card stack">
+        <label className="field-label">
+          なまえ
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="やまだ たろう"
+            style={{ fontSize: 18 }}
+          />
+        </label>
+        <label className="field-label">
+          部屋コード(数字4桁)
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, "").slice(0, 4))}
+            onKeyDown={(e) => e.key === "Enter" && canSubmit && handleJoin()}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={4}
+            placeholder="1234"
+            style={{
+              fontSize: 32,
+              letterSpacing: "0.3em",
+              textAlign: "center",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          />
+        </label>
+        <button className="btn-primary btn-large" onClick={handleJoin} disabled={!canSubmit}>
+          {busy ? "参加中..." : "参加する"}
+        </button>
+        {error && <p className="error-text" style={{ margin: 0 }}>{error}</p>}
+      </div>
     </div>
   );
 }

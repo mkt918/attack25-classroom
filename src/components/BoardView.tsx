@@ -22,34 +22,45 @@ export function BoardView({ board, players, selectableIndices, onSelect }: Board
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(5, 1fr)",
-        gap: 4,
-        maxWidth: 320,
+        gap: 6,
+        maxWidth: 360,
       }}
     >
       {board.map((owner, index) => {
         const player = owner ? players[owner] : null;
-        const bg = player ? COLOR_MAP[player.color] : "#333";
+        const bg = player ? COLOR_MAP[player.color] : "var(--surface)";
         const selectable = selectableIndices?.has(index) ?? false;
         return (
           <button
             key={index}
             disabled={!selectable}
             onClick={() => onSelect?.(index)}
+            title={player?.name}
             style={{
               aspectRatio: "1",
+              padding: 0,
               background: bg,
-              color: "#fff",
-              border: selectable ? "2px solid #fff" : "1px solid #555",
-              borderRadius: 4,
+              color: player ? "#fff" : "var(--text-muted)",
+              border: selectable ? "2px solid var(--accent)" : "1px solid var(--border)",
+              borderRadius: 6,
               fontSize: 14,
+              fontWeight: 700,
               cursor: selectable ? "pointer" : "default",
-              opacity: selectable ? 1 : owner ? 1 : 0.5,
+              opacity: !owner && !selectable ? 0.6 : 1,
+              boxShadow: selectable ? "0 0 0 3px var(--accent-soft)" : undefined,
+              animation: selectable ? "board-pulse 1.4s ease-in-out infinite" : undefined,
             }}
           >
             {index + 1}
           </button>
         );
       })}
+      <style>{`
+        @keyframes board-pulse {
+          0%, 100% { box-shadow: 0 0 0 3px var(--accent-soft); }
+          50% { box-shadow: 0 0 0 6px var(--accent-soft); }
+        }
+      `}</style>
     </div>
   );
 }
