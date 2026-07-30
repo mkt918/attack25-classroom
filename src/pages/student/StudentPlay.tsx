@@ -4,8 +4,9 @@ import * as actions from "../../firebase/roomActions";
 import { useRoomState } from "../../hooks/useRoomState";
 import { usePresence } from "../../hooks/usePresence";
 import { useTypewriter } from "../../hooks/useTypewriter";
-import { BoardView } from "../../components/BoardView";
+import { BoardView, COLOR_MAP, COLOR_LABEL_JA } from "../../components/BoardView";
 import { ResultBoard } from "../../components/ResultBoard";
+import { PanelCountSummary } from "../../components/PanelCountSummary";
 import {
   canClaimPanel,
   getSelectablePanelIndices,
@@ -79,18 +80,41 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
       : undefined;
 
   return (
-    <div className="page">
+    <div className="page" style={{ paddingLeft: 10, paddingRight: 10 }}>
       <div
         className="card"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: 12,
           marginBottom: 16,
+          borderTop: `6px solid ${COLOR_MAP[me.color]}`,
         }}
       >
-        <h1 style={{ margin: 0, fontSize: "1.3rem" }}>{me.name} さん</h1>
-        <div className="btn-row" style={{ gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+          <span
+            aria-hidden
+            style={{
+              display: "inline-block",
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: COLOR_MAP[me.color],
+              border: "2px solid var(--border)",
+              flexShrink: 0,
+            }}
+          />
+          <div style={{ minWidth: 0 }}>
+            <h1 style={{ margin: 0, fontSize: "1.3rem", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {me.name} さん
+            </h1>
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+              あなたの色: {COLOR_LABEL_JA[me.color]}
+            </p>
+          </div>
+        </div>
+        <div className="btn-row" style={{ gap: 8, flexShrink: 0 }}>
           <span className="badge badge-success">✓ {me.correctCount}問正解</span>
           <span className="badge">⚡ アタック権 {me.attackStock}</span>
         </div>
@@ -152,12 +176,13 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
       )}
 
       {phase === "panel_select" && (
-        <div className="card" style={{ textAlign: "center" }}>
+        <div className="card" style={{ textAlign: "center", padding: "16px 8px" }}>
           {isMyTurn ? (
             <>
               <h2>
                 {attackChance ? "🎯 正解!アタックチャンス、消すパネルを選んでください" : "🎉 正解!パネルを選んでください"}
               </h2>
+              <PanelCountSummary board={room.board} players={room.players} />
               <div style={{ display: "flex", justifyContent: "center" }}>
                 <BoardView
                   board={room.board}
@@ -175,10 +200,11 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
       )}
 
       {phase !== "panel_select" && phase !== "result" && (
-        <div className="card" style={{ marginTop: 16, textAlign: "center" }}>
+        <div className="card" style={{ marginTop: 16, textAlign: "center", padding: "16px 8px" }}>
           <h2>盤面</h2>
+          <PanelCountSummary board={room.board} players={room.players} />
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <BoardView board={room.board} players={room.players} />
+            <BoardView board={room.board} players={room.players} size="lg" />
           </div>
         </div>
       )}

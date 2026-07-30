@@ -1,6 +1,7 @@
 import { useHostGameLoop } from "../../hooks/useHostGameLoop";
 import { BoardView } from "../../components/BoardView";
 import { ResultBoard } from "../../components/ResultBoard";
+import { PanelCountSummary } from "../../components/PanelCountSummary";
 import type { QuestionSet, RoomState, RuleConfig } from "../../types/game";
 
 interface RoomMonitorProps {
@@ -62,6 +63,7 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
 
       {room && (
         <>
+          <PanelCountSummary board={room.board} players={room.players} />
           <BoardView board={room.board} players={room.players} />
           {phase === "result" && (
             <div style={{ marginTop: 12 }}>

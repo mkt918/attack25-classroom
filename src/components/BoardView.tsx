@@ -1,12 +1,21 @@
 import type { Board, Player } from "../types/game";
 
-const COLOR_MAP: Record<string, string> = {
+export const COLOR_MAP: Record<string, string> = {
   red: "#e53935",
   blue: "#1e88e5",
   green: "#43a047",
   yellow: "#fdd835",
   purple: "#8e24aa",
   orange: "#fb8c00",
+};
+
+export const COLOR_LABEL_JA: Record<string, string> = {
+  red: "赤",
+  blue: "青",
+  green: "緑",
+  yellow: "黄",
+  purple: "紫",
+  orange: "オレンジ",
 };
 
 interface BoardViewProps {
@@ -19,8 +28,8 @@ interface BoardViewProps {
 }
 
 const SIZE_STYLE = {
-  md: { maxWidth: "min(90vw, 420px)", gap: 6, fontSize: 15 },
-  lg: { maxWidth: "min(96vw, 620px)", gap: 10, fontSize: 24 },
+  md: { maxWidth: "min(98vw, 560px)", gap: 8, fontSize: 18 },
+  lg: { maxWidth: "min(99vw, 760px)", gap: 10, fontSize: 30 },
 };
 
 export function BoardView({
