@@ -20,11 +20,11 @@ export function Home() {
 
       <div className="stack">
         <a href="#/teacher" className="card" style={{ textDecoration: "none", display: "block" }}>
-          <h2 style={{ marginBottom: 4 }}>👩‍🏫 先生の方はこちら</h2>
+          <h2 style={{ marginBottom: 4 }}>先生の方はこちら</h2>
           <p className="muted" style={{ margin: 0 }}>問題・ルール設定、部屋の作成</p>
         </a>
         <a href="#/join" className="card" style={{ textDecoration: "none", display: "block" }}>
-          <h2 style={{ marginBottom: 4 }}>🙋 生徒の方はこちら</h2>
+          <h2 style={{ marginBottom: 4 }}>生徒の方はこちら</h2>
           <p className="muted" style={{ margin: 0 }}>部屋コードで参加</p>
         </a>
       </div>
@@ -32,7 +32,7 @@ export function Home() {
       <div className="card" style={{ textAlign: "center", marginTop: 24 }}>
         <h2>スマホで参加</h2>
         <p className="muted">QRコードを読み取ると参加ページに移動します</p>
-        <canvas ref={canvasRef} style={{ borderRadius: 8 }} />
+        <canvas ref={canvasRef} />
       </div>
 
       <p style={{ marginTop: 24 }}>

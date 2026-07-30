@@ -67,26 +67,18 @@ export function BoardView({
               padding: 0,
               background: bg,
               color: player ? "#fff" : "var(--text-muted)",
-              border: selectable ? "2px solid var(--accent)" : "1px solid var(--border)",
-              borderRadius: size === "lg" ? 10 : 6,
+              border: selectable ? "3px solid var(--accent)" : "1px solid var(--border)",
+              borderRadius: "var(--radius-sm)",
               fontSize,
               fontWeight: 700,
               cursor: selectable ? "pointer" : "default",
               opacity: !owner && !selectable ? 0.6 : 1,
-              boxShadow: selectable ? "0 0 0 3px var(--accent-soft)" : undefined,
-              animation: selectable ? "board-pulse 1.4s ease-in-out infinite" : undefined,
             }}
           >
             {index + 1}
           </button>
         );
       })}
-      <style>{`
-        @keyframes board-pulse {
-          0%, 100% { box-shadow: 0 0 0 3px var(--accent-soft); }
-          50% { box-shadow: 0 0 0 6px var(--accent-soft); }
-        }
-      `}</style>
     </div>
   );
 }

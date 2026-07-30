@@ -115,8 +115,8 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
           </div>
         </div>
         <div className="btn-row" style={{ gap: 8, flexShrink: 0 }}>
-          <span className="badge badge-success">✓ {me.correctCount}問正解</span>
-          <span className="badge">⚡ アタック権 {me.attackStock}</span>
+          <span className="badge badge-success">正解 {me.correctCount}問</span>
+          <span className="badge">アタック権 {me.attackStock}</span>
         </div>
       </div>
 
@@ -137,15 +137,15 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
           {phase === "buzz_open" ? (
             isResting ? (
               <p className="error-text" style={{ margin: 0 }}>
-                😴 お休み中(あと{me.restQuestionsLeft}問)。次の問題までお待ちください。
+                お休み中(あと{me.restQuestionsLeft}問)。次の問題までお待ちください。
               </p>
             ) : (
               <button
                 onClick={() => actions.tryBuzzIn(sessionId, roomId, uid)}
                 className="btn-primary btn-large"
-                style={{ fontSize: 28, padding: "28px" }}
+                style={{ fontSize: 24, padding: "24px" }}
               >
-                🔔 早押し!
+                早押し
               </button>
             )
           ) : (
@@ -180,7 +180,7 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
           {isMyTurn ? (
             <>
               <h2>
-                {attackChance ? "🎯 正解!アタックチャンス、消すパネルを選んでください" : "🎉 正解!パネルを選んでください"}
+                {attackChance ? "正解。アタックチャンス、消すパネルを選んでください" : "正解。パネルを選んでください"}
               </h2>
               <PanelCountSummary board={room.board} players={room.players} />
               <div style={{ display: "flex", justifyContent: "center" }}>
