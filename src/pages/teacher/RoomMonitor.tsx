@@ -36,16 +36,25 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
 
   return (
     <div className="card">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "var(--space-xs)",
+        }}
+      >
         <h3 style={{ margin: 0 }}>
-          部屋 {roomId} <span className="muted">({playerList.length}人)</span>
+          部屋 <span className="nums">{roomId}</span>{" "}
+          <span className="muted nums">({playerList.length}人)</span>
         </h3>
         <span className={`badge ${phase === "result" ? "badge-success" : phase === "lobby" ? "badge-muted" : ""}`}>
           {PHASE_LABEL[phase] ?? phase}
         </span>
       </div>
 
-      <div className="btn-row" style={{ margin: "12px 0" }}>
+      <div className="btn-row" style={{ margin: "var(--space-sm) 0" }}>
         <button className="btn-primary" onClick={startGame} disabled={isRunning || playerList.length === 0}>
           開始
         </button>
@@ -56,7 +65,7 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
       </div>
 
       {playerList.length > 0 && (
-        <p className="muted" style={{ fontSize: 13 }}>
+        <p className="field-note">
           参加者: {playerList.map((p) => `${p.name}(${p.correctCount}問)`).join(" / ")}
         </p>
       )}
@@ -66,29 +75,16 @@ export function RoomMonitor({ sessionId, roomId, questionSet, config, room }: Ro
           <PanelCountSummary board={room.board} players={room.players} />
           <BoardView board={room.board} players={room.players} />
           {phase === "result" && (
-            <div style={{ marginTop: 12 }}>
+            <div style={{ marginTop: "var(--space-sm)" }}>
               <ResultBoard board={room.board} players={room.players} />
             </div>
           )}
         </>
       )}
 
-      <details style={{ marginTop: 12 }}>
+      <details style={{ marginTop: "var(--space-sm)" }}>
         <summary className="muted" style={{ cursor: "pointer" }}>ログ</summary>
-        <pre
-          style={{
-            fontSize: 11,
-            maxHeight: 150,
-            overflowY: "auto",
-            background: "#111",
-            color: "#0f0",
-            padding: 8,
-            borderRadius: 6,
-            marginTop: 8,
-          }}
-        >
-          {log.join("\n")}
-        </pre>
+        <pre className="log-pre">{log.join("\n")}</pre>
       </details>
     </div>
   );

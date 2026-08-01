@@ -67,7 +67,7 @@ export function Dashboard() {
         <section className="card">
           <h2>1. 問題を用意する</h2>
           <QuestionSetEditor value={questionSet} onChange={setQuestionSet} />
-          <div className="btn-row" style={{ marginTop: 12 }}>
+          <div className="btn-row" style={{ marginTop: "var(--space-sm)" }}>
             <button className="btn-primary" onClick={handleSaveQuestionSet}>この問題集を保存</button>
             <button onClick={() => setQuestionSet(createEmptyQuestionSet())}>新規作成</button>
             {listQuestionSets().map((s) => (

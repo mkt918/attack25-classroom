@@ -1,0 +1,123 @@
+/* Hallmark · tokens · アタック25 授業版
+ * theme: custom "classroom-utility" — 教室のプロジェクタと生徒のスマホで同時に読める実務書体
+ * axes: paper=light · display=classical-serif(明朝) · accent=warm(赤 27°)
+ *
+ * このファイルが唯一の色・書体・寸法の出所。
+ * コンポーネント側で生の hex / oklch / font-family を書かないこと。
+ */
+
+:root {
+  /* --- 面と墨 --------------------------------------------------------- */
+  /* 純白・純黒は使わない。紙はわずかに暖色、墨はわずかに青へ振る */
+  --color-paper: oklch(97.5% 0.004 85);
+  --color-surface: oklch(99.2% 0.003 85);
+  --color-ink: oklch(30% 0.008 275);
+  --color-ink-strong: oklch(21% 0.012 275);
+  --color-ink-muted: oklch(53% 0.018 265);
+  --color-border: oklch(88% 0.005 275);
+  --color-border-strong: oklch(72% 0.008 275);
+
+  /* --- アクセント（正解・進行・強調） --------------------------------- */
+  --color-accent: oklch(55% 0.20 27);
+  --color-accent-hover: oklch(47% 0.18 27);
+  --color-accent-soft: oklch(95% 0.022 27);
+  /* soft 面に 14px 太字を載せるので 4.5:1 を確保できる明度まで落とす */
+  --color-success: oklch(47% 0.13 150);
+  --color-success-soft: oklch(95% 0.03 148);
+  --color-focus: oklch(55% 0.20 27);
+
+  /* --- プレイヤー識別色 ------------------------------------------------ */
+  /* 盤面のパネルに敷く色。黄だけは白文字だとコントラストが取れないため墨を載せる */
+  --color-player-red: oklch(55% 0.20 27);
+  --color-player-red-ink: oklch(99% 0 0);
+  --color-player-blue: oklch(52% 0.16 250);
+  --color-player-blue-ink: oklch(99% 0 0);
+  --color-player-green: oklch(52% 0.14 148);
+  --color-player-green-ink: oklch(99% 0 0);
+  --color-player-yellow: oklch(84% 0.16 92);
+  --color-player-yellow-ink: oklch(26% 0.05 92);
+  --color-player-purple: oklch(46% 0.19 315);
+  --color-player-purple-ink: oklch(99% 0 0);
+  /* オレンジは黄と同じ明度帯。白文字だと 3:1 を割るので墨を載せる */
+  --color-player-orange: oklch(70% 0.17 58);
+  --color-player-orange-ink: oklch(24% 0.05 58);
+
+  /* --- 進行ログ（等幅・暗転パネル） ------------------------------------ */
+  /* success 系から起こす。パレットにない独立色を増やさない */
+  --color-log-paper: oklch(22% 0.01 275);
+  --color-log-ink: oklch(80% 0.14 148);
+
+  /* --- 書体 ------------------------------------------------------------ */
+  /* 明朝を見出し、ゴシックを本文に当てる日本語の定石。外部フォント読込なし＝
+     学校ネットワークのフィルタリングに影響されない */
+  --font-display: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP",
+    "Songti SC", serif;
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI",
+    "Noto Sans JP", system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* --- 文字寸法 -------------------------------------------------------- */
+  --text-display: clamp(1.75rem, 5vw, 2.4rem);
+  --text-xl: 1.35rem;
+  --text-lg: 1.1rem;
+  --text-base: 1.0625rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.8125rem;
+
+  /* --- 余白（4pt スケール） -------------------------------------------- */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* --- 罫・角・重なり --------------------------------------------------- */
+  --rule: 1px;
+  --rule-thick: 3px;
+  --radius: 4px;
+  --radius-sm: 3px;
+  --radius-pill: 999px;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-overlay: 100;
+
+  /* --- 時間とイージング ------------------------------------------------ */
+  /* ブラウザ既定の ease は使わない */
+  --dur-instant: 0ms;
+  --dur-short: 120ms;
+  --dur-mid: 220ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(16% 0.006 275);
+    --color-surface: oklch(22% 0.008 275);
+    --color-ink: oklch(86% 0.008 275);
+    --color-ink-strong: oklch(96% 0.005 85);
+    --color-ink-muted: oklch(67% 0.015 265);
+    --color-border: oklch(32% 0.008 275);
+    --color-border-strong: oklch(46% 0.01 275);
+
+    --color-accent: oklch(68% 0.19 27);
+    --color-accent-hover: oklch(74% 0.17 27);
+    --color-accent-soft: oklch(28% 0.045 27);
+    --color-success: oklch(76% 0.16 150);
+    --color-success-soft: oklch(26% 0.05 150);
+    --color-focus: oklch(68% 0.19 27);
+
+    /* 暗い紙の上では識別色を一段明るく起こす */
+    --color-player-red: oklch(62% 0.19 27);
+    --color-player-blue: oklch(60% 0.15 250);
+    --color-player-green: oklch(60% 0.14 148);
+    --color-player-yellow: oklch(84% 0.16 92);
+    --color-player-purple: oklch(56% 0.18 315);
+    --color-player-orange: oklch(70% 0.16 55);
+
+    --color-log-paper: oklch(14% 0.008 275);
+  }
+}

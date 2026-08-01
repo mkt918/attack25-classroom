@@ -25,15 +25,15 @@ export function QuestionSetEditor({ value, onChange }: QuestionSetEditorProps) {
 
   return (
     <div>
-      <label>
-        問題集タイトル:{" "}
+      <label className="field-label" style={{ marginBottom: 0 }}>
+        問題集タイトル
         <input
           value={value.title}
           onChange={(e) => onChange({ ...value, title: e.target.value })}
         />
       </label>
 
-      <p style={{ fontSize: 13, opacity: 0.8, marginTop: 8 }}>
+      <p className="field-note" style={{ marginTop: "var(--space-xs)" }}>
         列: 問題文 / 選択肢1 / 選択肢2 / 選択肢3 / 選択肢4 / 正解番号(1-4)。
         タブ区切り(スプレッドシートからそのままコピペ可)。
       </p>
@@ -41,22 +41,26 @@ export function QuestionSetEditor({ value, onChange }: QuestionSetEditorProps) {
         value={tsvDraft}
         onChange={(e) => setTsvDraft(e.target.value)}
         rows={10}
-        style={{ width: "100%", boxSizing: "border-box", fontFamily: "monospace", fontSize: 13 }}
+        style={{
+          width: "100%",
+          fontFamily: "var(--font-mono)",
+          fontSize: "var(--text-xs)",
+        }}
         placeholder={"日本で一番高い山は?\t富士山\t北岳\t穂高岳\t槍ヶ岳\t1"}
       />
-      <button onClick={applyTsv} style={{ marginTop: 8 }}>
+      <button onClick={applyTsv} style={{ marginTop: "var(--space-xs)" }}>
         反映する
       </button>
 
       {errors.length > 0 && (
-        <ul style={{ color: "#d9291c" }}>
+        <ul className="error-text">
           {errors.map((err, i) => (
             <li key={i}>{err}</li>
           ))}
         </ul>
       )}
 
-      <p>現在の問題数: {value.questions.length}問</p>
+      <p className="nums">現在の問題数: {value.questions.length}問</p>
     </div>
   );
 }

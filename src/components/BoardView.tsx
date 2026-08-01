@@ -1,22 +1,5 @@
 import type { Board, Player } from "../types/game";
-
-export const COLOR_MAP: Record<string, string> = {
-  red: "#e53935",
-  blue: "#1e88e5",
-  green: "#43a047",
-  yellow: "#fdd835",
-  purple: "#8e24aa",
-  orange: "#fb8c00",
-};
-
-export const COLOR_LABEL_JA: Record<string, string> = {
-  red: "赤",
-  blue: "青",
-  green: "緑",
-  yellow: "黄",
-  purple: "紫",
-  orange: "オレンジ",
-};
+import { COLOR_MAP, COLOR_INK_MAP } from "./playerColors";
 
 interface BoardViewProps {
   board: Board;
@@ -28,8 +11,8 @@ interface BoardViewProps {
 }
 
 const SIZE_STYLE = {
-  md: { maxWidth: "min(98vw, 560px)", gap: 8, fontSize: 18 },
-  lg: { maxWidth: "min(99vw, 760px)", gap: 10, fontSize: 30 },
+  md: { maxWidth: "min(100%, 560px)", gap: "var(--space-xs)", fontSize: "var(--text-lg)" },
+  lg: { maxWidth: "min(100%, 760px)", gap: "var(--space-xs)", fontSize: "var(--text-display)" },
 };
 
 export function BoardView({
@@ -45,7 +28,8 @@ export function BoardView({
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(5, 1fr)",
+        // 画像・数字トラックは 1fr ではなく minmax(0,1fr)。狭幅で溢れさせない
+        gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
         gap,
         maxWidth,
         width: "100%",
@@ -54,7 +38,10 @@ export function BoardView({
     >
       {board.map((owner, index) => {
         const player = owner ? players[owner] : null;
-        const bg = player ? COLOR_MAP[player.color] : "var(--surface)";
+        // 空きマスは opacity で沈めない。透過は数字のコントラストを直接壊す。
+        // 面の明度（paper < surface）と罫だけで「まだ誰のものでもない」を示す
+        const bg = player ? COLOR_MAP[player.color] : "var(--color-paper)";
+        const ink = player ? COLOR_INK_MAP[player.color] : "var(--color-ink-muted)";
         const selectable = selectableIndices?.has(index) ?? false;
         return (
           <button
@@ -64,15 +51,19 @@ export function BoardView({
             title={player?.name}
             style={{
               aspectRatio: "1",
+              minWidth: 0,
               padding: 0,
               background: bg,
-              color: player ? "#fff" : "var(--text-muted)",
-              border: selectable ? "3px solid var(--accent)" : "1px solid var(--border)",
+              color: ink,
+              border: selectable
+                ? "var(--rule-thick) solid var(--color-accent)"
+                : "var(--rule) solid var(--color-border)",
               borderRadius: "var(--radius-sm)",
               fontSize,
               fontWeight: 700,
+              fontVariantNumeric: "tabular-nums",
               cursor: selectable ? "pointer" : "default",
-              opacity: !owner && !selectable ? 0.6 : 1,
+              opacity: 1,
             }}
           >
             {index + 1}

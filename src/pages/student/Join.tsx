@@ -53,7 +53,7 @@ export function Join() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="やまだ たろう"
-            style={{ fontSize: 18 }}
+            style={{ fontSize: "var(--text-lg)" }}
           />
         </label>
         <label className="field-label">
@@ -67,15 +67,20 @@ export function Join() {
             maxLength={4}
             placeholder="1234"
             style={{
-              fontSize: 32,
+              fontSize: "var(--text-display)",
               letterSpacing: "0.3em",
               textAlign: "center",
               fontVariantNumeric: "tabular-nums",
             }}
           />
         </label>
-        <button className="btn-primary btn-large" onClick={handleJoin} disabled={!canSubmit}>
-          {busy ? "参加中..." : "参加する"}
+        <button
+          className="btn-primary btn-large"
+          onClick={handleJoin}
+          disabled={!canSubmit}
+          data-state={busy ? "loading" : undefined}
+        >
+          {busy ? "参加しています…" : "参加する"}
         </button>
         {error && <p className="error-text" style={{ margin: 0 }}>{error}</p>}
       </div>

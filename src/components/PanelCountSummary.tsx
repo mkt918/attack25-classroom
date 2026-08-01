@@ -1,5 +1,5 @@
 import { getPanelCounts } from "../engine";
-import { COLOR_MAP } from "./BoardView";
+import { COLOR_MAP } from "./playerColors";
 import type { Board, Player } from "../types/game";
 
 interface PanelCountSummaryProps {
@@ -21,30 +21,21 @@ export function PanelCountSummary({ board, players }: PanelCountSummaryProps) {
       style={{
         display: "flex",
         flexWrap: "wrap",
-        gap: 8,
-        justifyContent: "center",
-        margin: "12px 0",
+        gap: "var(--space-xs)",
+        margin: "var(--space-sm) 0",
       }}
     >
       {rows.map(({ player, count }) => (
-        <span
-          key={player.uid}
-          className="badge"
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            color: "var(--text)",
-          }}
-        >
+        <span key={player.uid} className="badge badge-outline">
           <span
             aria-hidden
             style={{
               display: "inline-block",
               width: 12,
               height: 12,
-              borderRadius: "50%",
+              borderRadius: "var(--radius-pill)",
               background: COLOR_MAP[player.color],
-              marginRight: 2,
+              marginRight: "var(--space-2xs)",
             }}
           />
           {player.name} {count}枚

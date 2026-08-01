@@ -20,7 +20,7 @@ export function ConnectivityCheck() {
   const [result, setResult] = useState<CheckResult>({ status: "idle", message: "" });
 
   async function runCheck() {
-    setResult({ status: "running", message: "確認中..." });
+    setResult({ status: "running", message: "確認しています…" });
 
     if (!isFirebaseConfigured) {
       setResult({
@@ -64,33 +64,59 @@ export function ConnectivityCheck() {
   }
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: 24, textAlign: "left" }}>
+    <div className="page">
       <h1>M0: Firebase 疎通確認</h1>
       <p>
         このページは開発用です。教室のネットワークからこのページを開き、下のボタンを押して
         Firebase Realtime Database への読み書きができるか確認してください。
       </p>
-      <button onClick={runCheck} disabled={result.status === "running"}>
-        {result.status === "running" ? "確認中..." : "接続を確認する"}
+      <button
+        onClick={runCheck}
+        disabled={result.status === "running"}
+        data-state={
+          result.status === "running"
+            ? "loading"
+            : result.status === "error"
+              ? "error"
+              : result.status === "ok"
+                ? "success"
+                : undefined
+        }
+      >
+        {result.status === "running" ? "確認しています…" : "接続を確認する"}
       </button>
 
       {result.status !== "idle" && (
         <div
+          className="card card-tight"
           style={{
-            marginTop: 16,
-            padding: 12,
-            borderRadius: 8,
+            marginTop: "var(--space-md)",
+            borderLeft: "var(--rule) solid var(--color-border)",
+            borderColor:
+              result.status === "ok"
+                ? "var(--color-success)"
+                : result.status === "error"
+                  ? "var(--color-accent)"
+                  : "var(--color-border)",
             background:
               result.status === "ok"
-                ? "rgba(0,180,0,0.1)"
+                ? "var(--color-success-soft)"
                 : result.status === "error"
-                ? "rgba(220,0,0,0.1)"
-                : "rgba(128,128,128,0.1)",
+                  ? "var(--color-accent-soft)"
+                  : "var(--color-surface)",
           }}
         >
           <strong>{result.message}</strong>
           {result.detail && (
-            <pre style={{ whiteSpace: "pre-wrap", fontSize: 14, marginTop: 8 }}>
+            <pre
+              style={{
+                whiteSpace: "pre-wrap",
+                overflowWrap: "anywhere",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--text-sm)",
+                marginTop: "var(--space-xs)",
+              }}
+            >
               {result.detail}
             </pre>
           )}

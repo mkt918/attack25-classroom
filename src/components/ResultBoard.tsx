@@ -15,7 +15,15 @@ export function ResultBoard({ board, players }: ResultBoardProps) {
   return (
     <div>
       <h2>結果発表</h2>
-      <ol style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gap: 8 }}>
+      <ol
+        style={{
+          listStyle: "none",
+          padding: 0,
+          margin: 0,
+          display: "grid",
+          gap: "var(--space-xs)",
+        }}
+      >
         {standings.map((s) => (
           <li
             key={s.uid}
@@ -24,12 +32,26 @@ export function ResultBoard({ board, players }: ResultBoardProps) {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              padding: s.rank === 1 ? "20px 24px" : "12px 20px",
-              border: s.rank === 1 ? "2px solid var(--accent)" : undefined,
+              gap: "var(--space-sm)",
+              padding:
+                s.rank === 1
+                  ? "var(--space-lg) var(--space-md)"
+                  : "var(--space-sm) var(--space-md)",
+              borderColor: s.rank === 1 ? "var(--color-accent)" : undefined,
+              borderWidth: s.rank === 1 ? "var(--rule-thick)" : undefined,
             }}
           >
-            <span style={{ fontSize: s.rank === 1 ? 28 : 18, fontWeight: s.rank === 1 ? 800 : 600 }}>
-              {s.rank <= 3 ? MEDAL[s.rank - 1] : `${s.rank}位`} {players[s.uid]?.name ?? s.uid}
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: s.rank === 1 ? "var(--text-xl)" : "var(--text-lg)",
+                fontWeight: s.rank === 1 ? 700 : 600,
+                minWidth: 0,
+                overflowWrap: "anywhere",
+              }}
+            >
+              <span className="nums">{s.rank <= 3 ? MEDAL[s.rank - 1] : `${s.rank}位`}</span>{" "}
+              {players[s.uid]?.name ?? s.uid}
             </span>
             <span className="badge">{s.count}枚</span>
           </li>

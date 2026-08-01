@@ -4,7 +4,8 @@ import * as actions from "../../firebase/roomActions";
 import { useRoomState } from "../../hooks/useRoomState";
 import { usePresence } from "../../hooks/usePresence";
 import { useTypewriter } from "../../hooks/useTypewriter";
-import { BoardView, COLOR_MAP, COLOR_LABEL_JA } from "../../components/BoardView";
+import { BoardView } from "../../components/BoardView";
+import { COLOR_MAP, COLOR_LABEL_JA } from "../../components/playerColors";
 import { ResultBoard } from "../../components/ResultBoard";
 import { PanelCountSummary } from "../../components/PanelCountSummary";
 import {
@@ -34,8 +35,8 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
 
   if (!uid) {
     return (
-      <div className="page" style={{ textAlign: "center" }}>
-        <p className="muted">接続中...</p>
+      <div className="page">
+        <p className="muted">接続しています…</p>
       </div>
     );
   }
@@ -61,7 +62,7 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
 
   const phase = room.meta.phase;
   const isMyTurn = room.buzz.first?.uid === uid;
-  const activePlayerName = room.players[room.buzz.first?.uid ?? ""]?.name ?? "誰か";
+  const activePlayerName = room.players[room.buzz.first?.uid ?? ""]?.name ?? "だれか";
   const isResting = (me.restQuestionsLeft ?? 0) > 0;
   const attackChance = isAttackChanceQuestion(
     room.meta.questionIndex,
@@ -80,55 +81,53 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
       : undefined;
 
   return (
-    <div className="page" style={{ paddingLeft: 10, paddingRight: 10 }}>
+    <div className="page">
       <div
-        className="card"
+        className="card card-tight"
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 12,
-          marginBottom: 16,
-          borderTop: `6px solid ${COLOR_MAP[me.color]}`,
+          gap: "var(--space-sm)",
+          marginBottom: "var(--space-md)",
+          borderTop: `var(--rule-thick) solid ${COLOR_MAP[me.color]}`,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)", minWidth: 0 }}>
           <span
             aria-hidden
             style={{
               display: "inline-block",
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
+              width: 26,
+              height: 26,
+              borderRadius: "var(--radius-pill)",
               background: COLOR_MAP[me.color],
-              border: "2px solid var(--border)",
+              border: "var(--rule) solid var(--color-border)",
               flexShrink: 0,
             }}
           />
           <div style={{ minWidth: 0 }}>
-            <h1 style={{ margin: 0, fontSize: "1.3rem", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {me.name} さん
-            </h1>
-            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+            <h1 style={{ margin: 0, fontSize: "var(--text-lg)" }}>{me.name} さん</h1>
+            <p className="field-note" style={{ margin: 0 }}>
               あなたの色: {COLOR_LABEL_JA[me.color]}
             </p>
           </div>
         </div>
-        <div className="btn-row" style={{ gap: 8, flexShrink: 0 }}>
+        <div className="btn-row" style={{ flexShrink: 0 }}>
           <span className="badge badge-success">正解 {me.correctCount}問</span>
           <span className="badge">アタック権 {me.attackStock}</span>
         </div>
       </div>
 
       {phase === "lobby" && (
-        <div className="card" style={{ textAlign: "center" }}>
-          <p className="muted" style={{ margin: 0 }}>ゲーム開始をお待ちください...</p>
+        <div className="card card-tight">
+          <p className="muted" style={{ margin: 0 }}>ゲーム開始をお待ちください。</p>
         </div>
       )}
 
       {(phase === "q_reading" || phase === "buzz_open") && room.question && (
-        <div className="card stack" style={{ textAlign: "center" }}>
-          <h2 style={{ minHeight: "2.6em" }}>
+        <div className="card stack">
+          <h2 style={{ minHeight: "2.6em", margin: 0 }}>
             {revealedQuestionText}
             {revealedQuestionText.length < room.question.text.length && (
               <span className="typewriter-caret">|</span>
@@ -137,80 +136,84 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
           {phase === "buzz_open" ? (
             isResting ? (
               <p className="error-text" style={{ margin: 0 }}>
-                お休み中(あと{me.restQuestionsLeft}問)。次の問題までお待ちください。
+                お休み中（あと{me.restQuestionsLeft}問）。次の問題までお待ちください。
               </p>
             ) : (
               <button
                 onClick={() => actions.tryBuzzIn(sessionId, roomId, uid)}
                 className="btn-primary btn-large"
-                style={{ fontSize: 24, padding: "24px" }}
               >
                 早押し
               </button>
             )
           ) : (
-            <p className="muted" style={{ margin: 0 }}>まもなく早押しが始まります...</p>
+            <p className="muted" style={{ margin: 0 }}>まもなく早押しが始まります。</p>
           )}
         </div>
       )}
 
       {phase === "answering" && room.question && (
         <div className="card stack">
-          <h2>{room.question.text}</h2>
+          <h2 style={{ margin: 0 }}>{room.question.text}</h2>
           {isMyTurn ? (
-            <div style={{ display: "grid", gap: 8 }}>
+            <div style={{ display: "grid", gap: "var(--space-xs)" }}>
               {room.question.choices.map((choice, i) => (
                 <button
                   key={i}
                   onClick={() => actions.submitAnswer(sessionId, roomId, uid, i as 0 | 1 | 2 | 3)}
-                  style={{ fontSize: 18, padding: 16, textAlign: "left" }}
+                  style={{
+                    fontSize: "var(--text-lg)",
+                    padding: "var(--space-md)",
+                    textAlign: "left",
+                    whiteSpace: "normal",
+                  }}
                 >
                   {choice}
                 </button>
               ))}
             </div>
           ) : (
-            <p className="muted" style={{ margin: 0 }}>{activePlayerName} が解答中...</p>
+            <p className="muted" style={{ margin: 0 }}>{activePlayerName} さんが解答しています。</p>
           )}
         </div>
       )}
 
       {phase === "panel_select" && (
-        <div className="card" style={{ textAlign: "center", padding: "16px 8px" }}>
+        <div className="card card-board">
           {isMyTurn ? (
             <>
               <h2>
-                {attackChance ? "正解。アタックチャンス、消すパネルを選んでください" : "正解。パネルを選んでください"}
+                {attackChance
+                  ? "正解。アタックチャンス、消すパネルを選んでください"
+                  : "正解。パネルを選んでください"}
               </h2>
               <PanelCountSummary board={room.board} players={room.players} />
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <BoardView
-                  board={room.board}
-                  players={room.players}
-                  selectableIndices={selectablePanelIndices}
-                  onSelect={(index) => actions.submitPanelPick(sessionId, roomId, uid, index)}
-                  size="lg"
-                />
-              </div>
+              <BoardView
+                board={room.board}
+                players={room.players}
+                selectableIndices={selectablePanelIndices}
+                onSelect={(index) => actions.submitPanelPick(sessionId, roomId, uid, index)}
+                size="lg"
+              />
             </>
           ) : (
-            <p className="muted" style={{ margin: 0 }}>{activePlayerName} がパネルを選択中...</p>
+            <p className="muted" style={{ margin: 0 }}>
+              {activePlayerName} さんがパネルを選んでいます。
+            </p>
           )}
         </div>
       )}
 
       {phase !== "panel_select" && phase !== "result" && (
-        <div className="card" style={{ marginTop: 16, textAlign: "center", padding: "16px 8px" }}>
+        <div className="card card-board" style={{ marginTop: "var(--space-md)" }}>
           <h2>盤面</h2>
           <PanelCountSummary board={room.board} players={room.players} />
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <BoardView board={room.board} players={room.players} size="lg" />
-          </div>
+          <BoardView board={room.board} players={room.players} size="lg" />
         </div>
       )}
 
       {phase === "result" && (
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: "var(--space-md)" }}>
           <ResultBoard board={room.board} players={room.players} />
         </div>
       )}
