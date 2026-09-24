@@ -7,6 +7,7 @@ export type GamePhase =
   | "answering"
   | "panel_select"
   | "flip_resolve"
+  | "explanation"
   | "result"
   | "closed";
 
@@ -45,6 +46,8 @@ export interface RuleConfig {
   charRevealMs: number;
   /** 出題順をランダムにするか(オフなら問題集に登録した順で出題) */
   randomizeQuestions: boolean;
+  /** 正誤判定後に解説文を表示する秒数 */
+  explanationDisplaySec: number;
 }
 
 export const DEFAULT_RULE_CONFIG: RuleConfig = {
@@ -61,6 +64,7 @@ export const DEFAULT_RULE_CONFIG: RuleConfig = {
   finalAttackQuestions: 5,
   charRevealMs: 80,
   randomizeQuestions: true,
+  explanationDisplaySec: 6,
 };
 
 /** プレイヤー識別色 */
@@ -101,11 +105,12 @@ export interface Question {
   text: string;
   choices: [string, string, string, string];
   answerIndex: 0 | 1 | 2 | 3;
-  note?: string;
+  /** 正誤判定後に表示する解説文 */
+  explanation?: string;
 }
 
-/** 生徒に配信する問題(正答を含まない) */
-export type PublicQuestion = Omit<Question, "answerIndex" | "note">;
+/** 生徒に配信する問題(正答・解説を含まない。解説は正誤判定後に別途配信する) */
+export type PublicQuestion = Omit<Question, "answerIndex" | "explanation">;
 
 export function toPublicQuestion(q: Question): PublicQuestion {
   return { id: q.id, text: q.text, choices: q.choices };
@@ -158,4 +163,6 @@ export interface RoomState {
   answer: AnswerState | null;
   panelPick: PanelPick | null;
   ruleConfig: RuleConfig;
+  /** 直前に判定した問題の解説文。phase が "explanation" の間だけ表示する。 */
+  explanation: string | null;
 }

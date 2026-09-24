@@ -264,6 +264,15 @@ export function useHostGameLoop(
           appendLog("この問題をスキップしました");
           continue;
         }
+
+        if (question.explanation) {
+          await actions.publishExplanation(sessionId, roomId, question.explanation);
+          await actions.setPhase(sessionId, roomId, "explanation");
+          appendLog(`解説を表示: ${question.explanation}`);
+          await sleep(config.explanationDisplaySec * 1000);
+          await actions.publishExplanation(sessionId, roomId, null);
+        }
+
         if (result.outcome === "exhausted") {
           appendLog("誰も正解できませんでした");
           continue;

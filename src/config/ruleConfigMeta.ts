@@ -117,6 +117,18 @@ export const RULE_CONFIG_FIELDS: RuleFieldMeta[] = [
     set: (c, v) => ({ ...c, charRevealMs: v }),
   },
   {
+    key: "explanationDisplaySec",
+    kind: "slider",
+    label: "解説の表示時間",
+    description: "正解者が決まった後(または誰も正解できなかった後)、解説文をこの秒数だけ表示してから次の問題に進む。",
+    min: 2,
+    max: 20,
+    step: 1,
+    unit: "秒",
+    get: (c) => c.explanationDisplaySec,
+    set: (c, v) => ({ ...c, explanationDisplaySec: v }),
+  },
+  {
     key: "answerTimeoutSec",
     kind: "slider",
     label: "解答制限時間",

@@ -4,6 +4,7 @@ import { ConnectivityCheck } from "./pages/ConnectivityCheck";
 import { Dashboard } from "./pages/teacher/Dashboard";
 import { Join } from "./pages/student/Join";
 import { StudentPlay } from "./pages/student/StudentPlay";
+import { SoloMode } from "./pages/SoloMode";
 
 function App() {
   const segments = useHashRoute();
@@ -16,6 +17,9 @@ function App() {
   }
   if (segments[0] === "join") {
     return <Join />;
+  }
+  if (segments[0] === "solo") {
+    return <SoloMode />;
   }
   if (segments[0] === "play" && segments[1] && segments[2]) {
     return <StudentPlay sessionId={segments[1]} roomId={segments[2]} />;

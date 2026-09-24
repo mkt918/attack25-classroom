@@ -51,6 +51,8 @@ export function Home() {
       </div>
 
       <p style={{ marginTop: "var(--space-lg)" }}>
+        <a href="#/solo" className="muted">1人用モード（動作確認）</a>
+        {" ・ "}
         <a href="#/check" className="muted">Firebase 疎通確認（開発用）</a>
       </p>
     </div>

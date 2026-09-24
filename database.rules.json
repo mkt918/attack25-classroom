@@ -18,8 +18,11 @@
     "sessions": {
       "$sessionId": {
         "rooms": {
+          ".read": "auth != null",
+
           "$roomId": {
             ".read": "auth != null",
+            ".write": "auth != null && (!data.exists() || auth.uid === data.child('meta/hostUid').val())",
 
             "meta": {
               ".write": "auth != null && (!data.exists() || auth.uid === data.child('hostUid').val())"
@@ -30,15 +33,19 @@
             },
 
             "board": {
-              ".write": "auth != null && auth.uid === data.parent().child('meta/hostUid').val()"
+              ".write": "auth != null && (!data.parent().child('meta').exists() || auth.uid === data.parent().child('meta/hostUid').val())"
             },
 
             "question": {
-              ".write": "auth != null && auth.uid === data.parent().child('meta/hostUid').val()"
+              ".write": "auth != null && (!data.parent().child('meta').exists() || auth.uid === data.parent().child('meta/hostUid').val())"
+            },
+
+            "explanation": {
+              ".write": "auth != null && (!data.parent().child('meta').exists() || auth.uid === data.parent().child('meta/hostUid').val())"
             },
 
             "judgeLog": {
-              ".write": "auth != null && auth.uid === data.parent().child('meta/hostUid').val()"
+              ".write": "auth != null && (!data.parent().child('meta').exists() || auth.uid === data.parent().child('meta/hostUid').val())"
             },
 
             "players": {
@@ -49,10 +56,10 @@
 
             "buzz": {
               "open": {
-                ".write": "auth != null && auth.uid === data.parent().parent().child('meta/hostUid').val()"
+                ".write": "auth != null && (!data.parent().parent().child('meta').exists() || auth.uid === data.parent().parent().child('meta/hostUid').val())"
               },
               "first": {
-                ".write": "auth != null && data.parent().parent().child('players').child(auth.uid).exists()",
+                ".write": "auth != null && (!data.parent().parent().child('meta').exists() || data.parent().parent().child('players').child(auth.uid).exists())",
                 ".validate": "newData.child('uid').val() === auth.uid"
               }
             },

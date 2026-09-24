@@ -1,4 +1,4 @@
-import { ref, set, update, get, push, runTransaction } from "firebase/database";
+import { ref, set, update, get, push, runTransaction, type Database } from "firebase/database";
 import { getDb } from "./config";
 import {
   roomPath,
@@ -12,6 +12,7 @@ import {
   roomAnswerPath,
   roomJudgeLogPath,
   roomPanelPickPath,
+  roomExplanationPath,
 } from "./paths";
 import {
   createEmptyBoard,
@@ -48,6 +49,7 @@ export async function initRoom(
     answer: null,
     panelPick: null,
     ruleConfig: config,
+    explanation: null,
   });
 }
 
@@ -64,11 +66,12 @@ export async function joinRoom(
   sessionId: string,
   roomId: string,
   uid: string,
-  name: string
+  name: string,
+  db: Database = getDb()
 ): Promise<void> {
-  const existing = await get(ref(getDb(), playerPath(sessionId, roomId, uid)));
+  const existing = await get(ref(db, playerPath(sessionId, roomId, uid)));
   if (existing.exists()) {
-    await update(ref(getDb(), playerPath(sessionId, roomId, uid)), { connected: true });
+    await update(ref(db, playerPath(sessionId, roomId, uid)), { connected: true });
     return;
   }
 
@@ -85,7 +88,7 @@ export async function joinRoom(
     attackStock: 0,
     restQuestionsLeft: 0,
   };
-  await set(ref(getDb(), playerPath(sessionId, roomId, uid)), player);
+  await set(ref(db, playerPath(sessionId, roomId, uid)), player);
 }
 
 export async function setPhase(
@@ -121,6 +124,15 @@ export async function publishQuestion(
   await set(ref(getDb(), roomQuestionPath(sessionId, roomId)), question);
 }
 
+/** 正誤判定後に解説文を配信する。null を渡すと非表示に戻す。 */
+export async function publishExplanation(
+  sessionId: string,
+  roomId: string,
+  explanation: string | null
+): Promise<void> {
+  await set(ref(getDb(), roomExplanationPath(sessionId, roomId)), explanation);
+}
+
 export async function openBuzz(sessionId: string, roomId: string): Promise<void> {
   await set(ref(getDb(), roomBuzzPath(sessionId, roomId)), { open: true, first: null });
 }
@@ -141,9 +153,10 @@ export async function clearPanelPick(sessionId: string, roomId: string): Promise
 export async function tryBuzzIn(
   sessionId: string,
   roomId: string,
-  uid: string
+  uid: string,
+  db: Database = getDb()
 ): Promise<boolean> {
-  const firstRef = ref(getDb(), roomBuzzFirstPath(sessionId, roomId));
+  const firstRef = ref(db, roomBuzzFirstPath(sessionId, roomId));
   const result = await runTransaction(firstRef, (current) => {
     if (current === null) {
       return { uid, at: Date.now() };
@@ -157,18 +170,20 @@ export async function submitAnswer(
   sessionId: string,
   roomId: string,
   uid: string,
-  choiceIndex: 0 | 1 | 2 | 3
+  choiceIndex: 0 | 1 | 2 | 3,
+  db: Database = getDb()
 ): Promise<void> {
-  await set(ref(getDb(), roomAnswerPath(sessionId, roomId)), { uid, choiceIndex, at: Date.now() });
+  await set(ref(db, roomAnswerPath(sessionId, roomId)), { uid, choiceIndex, at: Date.now() });
 }
 
 export async function submitPanelPick(
   sessionId: string,
   roomId: string,
   uid: string,
-  panelIndex: number
+  panelIndex: number,
+  db: Database = getDb()
 ): Promise<void> {
-  await set(ref(getDb(), roomPanelPickPath(sessionId, roomId)), { uid, panelIndex });
+  await set(ref(db, roomPanelPickPath(sessionId, roomId)), { uid, panelIndex });
 }
 
 export async function updatePlayer(

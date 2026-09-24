@@ -33,5 +33,6 @@ export function normalizeRoomState(raw: unknown): RoomState | null {
     answer: val.answer ?? null,
     panelPick: val.panelPick ?? null,
     ruleConfig: val.ruleConfig as RoomState["ruleConfig"],
+    explanation: val.explanation ?? null,
   };
 }

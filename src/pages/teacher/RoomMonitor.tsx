@@ -18,6 +18,7 @@ const PHASE_LABEL: Record<string, string> = {
   buzz_open: "早押し受付中",
   answering: "解答中",
   panel_select: "パネル選択中",
+  explanation: "解説表示中",
   result: "終了",
 };
 

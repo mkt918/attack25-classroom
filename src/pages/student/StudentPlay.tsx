@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import type { Auth } from "firebase/auth";
+import type { Database } from "firebase/database";
 import { ensureSignedIn } from "../../firebase/auth";
 import * as actions from "../../firebase/roomActions";
 import { useRoomState } from "../../hooks/useRoomState";
@@ -18,24 +20,40 @@ import {
 interface StudentPlayProps {
   sessionId: string;
   roomId: string;
+  /**
+   * 通常プレイでは省略する。「1人用モード」で複数の生徒役を1画面から
+   * 操作するときだけ、生徒役ごとの名前付き Firebase インスタンスを渡す。
+   */
+  authInstance?: Auth;
+  dbInstance?: Database;
+  /** true にすると .page の外枠(最大幅・余白)を外し、グリッドのタイルとして敷き詰められるようにする */
+  compact?: boolean;
 }
 
-export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
+export function StudentPlay({
+  sessionId,
+  roomId,
+  authInstance,
+  dbInstance,
+  compact = false,
+}: StudentPlayProps) {
   const [uid, setUid] = useState<string | null>(null);
   const room = useRoomState(sessionId, roomId);
-  usePresence(sessionId, roomId, uid);
+  usePresence(sessionId, roomId, uid, dbInstance);
   const revealedQuestionText = useTypewriter(
     room?.question?.text ?? "",
     room?.ruleConfig.charRevealMs ?? 0
   );
 
   useEffect(() => {
-    ensureSignedIn().then((user) => setUid(user.uid));
-  }, []);
+    ensureSignedIn(authInstance).then((user) => setUid(user.uid));
+  }, [authInstance]);
+
+  const wrapClassName = compact ? undefined : "page";
 
   if (!uid) {
     return (
-      <div className="page">
+      <div className={wrapClassName}>
         <p className="muted">接続しています…</p>
       </div>
     );
@@ -43,7 +61,7 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
 
   if (!room) {
     return (
-      <div className="page">
+      <div className={wrapClassName}>
         <p className="muted">
           部屋 {roomId} の情報を読み込んでいます。部屋コードが正しいか確認してください。
         </p>
@@ -54,7 +72,7 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
   const me = room.players[uid];
   if (!me) {
     return (
-      <div className="page">
+      <div className={wrapClassName}>
         <p className="muted">この部屋にまだ参加していません。「参加する」画面からやり直してください。</p>
       </div>
     );
@@ -81,7 +99,7 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
       : undefined;
 
   return (
-    <div className="page">
+    <div className={wrapClassName}>
       <div
         className="card card-tight"
         style={{
@@ -140,7 +158,7 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
               </p>
             ) : (
               <button
-                onClick={() => actions.tryBuzzIn(sessionId, roomId, uid)}
+                onClick={() => actions.tryBuzzIn(sessionId, roomId, uid, dbInstance)}
                 className="btn-primary btn-large"
               >
                 早押し
@@ -160,7 +178,9 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
               {room.question.choices.map((choice, i) => (
                 <button
                   key={i}
-                  onClick={() => actions.submitAnswer(sessionId, roomId, uid, i as 0 | 1 | 2 | 3)}
+                  onClick={() =>
+                    actions.submitAnswer(sessionId, roomId, uid, i as 0 | 1 | 2 | 3, dbInstance)
+                  }
                   style={{
                     fontSize: "var(--text-lg)",
                     padding: "var(--space-md)",
@@ -192,7 +212,9 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
                 board={room.board}
                 players={room.players}
                 selectableIndices={selectablePanelIndices}
-                onSelect={(index) => actions.submitPanelPick(sessionId, roomId, uid, index)}
+                onSelect={(index) =>
+                  actions.submitPanelPick(sessionId, roomId, uid, index, dbInstance)
+                }
                 size="lg"
               />
             </>
@@ -201,6 +223,21 @@ export function StudentPlay({ sessionId, roomId }: StudentPlayProps) {
               {activePlayerName} さんがパネルを選んでいます。
             </p>
           )}
+        </div>
+      )}
+
+      {phase === "explanation" && room.question && (
+        <div className="card stack">
+          <h2 style={{ margin: 0 }}>{room.question.text}</h2>
+          <div
+            className="card-tight"
+            style={{
+              background: "var(--color-accent-soft)",
+              borderRadius: "var(--radius)",
+            }}
+          >
+            <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{room.explanation}</p>
+          </div>
         </div>
       )}
 

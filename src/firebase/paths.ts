@@ -45,6 +45,9 @@ export const roomAnswerPath = (sessionId: string, roomId: string) =>
 export const roomJudgeLogPath = (sessionId: string, roomId: string) =>
   `${roomPath(sessionId, roomId)}/judgeLog`;
 
+export const roomExplanationPath = (sessionId: string, roomId: string) =>
+  `${roomPath(sessionId, roomId)}/explanation`;
+
 export const roomPanelPickPath = (sessionId: string, roomId: string) =>
   `${roomPath(sessionId, roomId)}/panelPick`;
 

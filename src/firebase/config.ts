@@ -1,4 +1,4 @@
-import { initializeApp, type FirebaseOptions } from "firebase/app";
+import { initializeApp, getApps, type FirebaseOptions } from "firebase/app";
 import { getDatabase, type Database } from "firebase/database";
 import { getAuth, type Auth } from "firebase/auth";
 
@@ -35,4 +35,26 @@ export function getDb(): Database {
 export function getAuthInstance(): Auth {
   if (!auth) throw new Error("Firebase が設定されていません(.env.local を確認してください)");
   return auth;
+}
+
+const namedInstances = new Map<string, { db: Database; auth: Auth }>();
+
+/**
+ * 名前付きの Firebase アプリインスタンスを取得(無ければ作成)する。
+ * 同一ブラウザタブ内でも、Auth はアプリインスタンスごとに独立したセッションを持てるため、
+ * 「1人用モード(動作確認)」で複数の生徒役を同時に別 uid として操作するのに使う。
+ * 通常のプレイ(1人1台)では使わない。
+ */
+export function getNamedInstance(name: string): { db: Database; auth: Auth } {
+  if (!isFirebaseConfigured) {
+    throw new Error("Firebase が設定されていません(.env.local を確認してください)");
+  }
+  const cached = namedInstances.get(name);
+  if (cached) return cached;
+
+  const existingApp = getApps().find((a) => a.name === name);
+  const app = existingApp ?? initializeApp(firebaseConfig, name);
+  const instance = { db: getDatabase(app), auth: getAuth(app) };
+  namedInstances.set(name, instance);
+  return instance;
 }
